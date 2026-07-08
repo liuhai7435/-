@@ -27,7 +27,7 @@ android.api = 33
 android.minapi = 24
 
 # 使用更稳定的 NDK（与 buildozer 1.6.0 兼容）
-android.ndk = 23b
+android.ndk = 26b
 
 # 允许 HTTP
 android.allow_clear_text = True
