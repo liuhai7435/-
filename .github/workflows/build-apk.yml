@@ -65,8 +65,8 @@ jobs:
             --package=com.test.flaskapp \
             --name "测试" \
             --version 1.0 \
-            --bootstrap=webview \
-            --requirements=python3,flask \
+            --bootstrap=sdl2 \
+            --requirements=python3,kivy,flask,werkzeug,jinja2,markupsafe,itsdangerous,click,blinker \
             --permission INTERNET \
             --permission ACCESS_NETWORK_STATE \
             --android-api 33 \
