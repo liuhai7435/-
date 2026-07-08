@@ -21,7 +21,6 @@ android.ndk = 26b
 android.accept_sdk_license = True
 android.allow_clear_text = True
 android.build_tools_version = 33.0.2
-android.skip_update = True
 
 orientation = portrait
 
