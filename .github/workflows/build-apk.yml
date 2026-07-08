@@ -18,67 +18,58 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             python3 python3-pip python3-venv \
-            autoconf automake libtool \
-            libltdl-dev libffi-dev libssl-dev \
-            openjdk-17-jdk \
-            zip unzip git wget \
-            libncurses5-dev libncursesw5-dev \
-            zlib1g-dev cmake
+            autoconf automake libtool libltdl-dev \
+            libffi-dev libssl-dev openjdk-17-jdk \
+            zip unzip git wget cmake \
+            libncurses5-dev libncursesw5-dev zlib1g-dev
 
-      - name: 设置 Java 环境
+      - name: 设置环境变量
         run: |
+          ANDROID_HOME=$HOME/android-sdk
+          ANDROID_SDK_ROOT=$HOME/android-sdk
+          ANDROID_NDK_HOME=$HOME/android-sdk/ndk/26.3.11579264
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> $GITHUB_ENV
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
           echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> $GITHUB_PATH
 
-      - name: 安装 Android SDK (绕过 buildozer 分号 bug)
+      - name: 缓存 Android SDK
+        id: cache-sdk
+        uses: actions/cache@v4
+        with:
+          path: ~/android-sdk
+          key: android-sdk-v3-ndk26
+
+      - name: 安装 Android SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
         run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd $HOME/android-sdk/cmdline-tools
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -q commandlinetools-linux-11076708_latest.zip
           mv cmdline-tools latest
           rm commandlinetools-linux-11076708_latest.zip
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME \
+            "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;26.3.11579264"
 
-          # 接受许可
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+      - name: 安装 buildozer
+        run: pip3 install buildozer cython
 
-          # 安装需要的组件（注意引号包裹分号）
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
-            "platform-tools" \
-            "platforms;android-33" \
-            "build-tools;33.0.2" \
-            "ndk;26.3.11579264"
-
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_NDK_HOME=$HOME/android-sdk/ndk/26.3.11579264" >> $GITHUB_ENV
-
-      - name: 安装 python-for-android
-        run: |
-          python3 -m pip install --upgrade pip
-          pip3 install python-for-android cython
+      - name: 缓存 buildozer 构建
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-v4-${{ hashFiles('buildozer.spec') }}
+          restore-keys: buildozer-v4-
 
       - name: 构建 APK
-        run: |
-          p4a apk \
-            --private . \
-            --package=com.test.flaskapp \
-            --name "测试" \
-            --version 1.0 \
-            --bootstrap=sdl2 \
-            --requirements=python3,kivy,flask,werkzeug,jinja2,markupsafe,itsdangerous,click,blinker \
-            --permission INTERNET \
-            --permission ACCESS_NETWORK_STATE \
-            --android-api 33 \
-            --arch arm64-v8a \
-            --sdk-dir $ANDROID_HOME \
-            --ndk-dir $ANDROID_NDK_HOME \
-            --dist-name flaskapp \
-            --debug
+        run: buildozer android debug
 
       - name: 上传 APK
         uses: actions/upload-artifact@v4
         with:
           name: 测试-apk
-          path: "*.apk"
+          path: bin/*.apk
           retention-days: 30
