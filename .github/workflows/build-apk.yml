@@ -68,7 +68,14 @@ jobs:
           restore-keys: buildozer-v4-
 
       - name: 构建 APK
-        run: buildozer android debug
+        run: |
+          # buildozer 坚持用自带路径，把预装 SDK 链接过去
+          mkdir -p ~/.buildozer/android/platform/android-sdk
+          ln -sf $ANDROID_HOME/build-tools ~/.buildozer/android/platform/android-sdk/build-tools
+          ln -sf $ANDROID_HOME/platforms ~/.buildozer/android/platform/android-sdk/platforms
+          ln -sf $ANDROID_HOME/platform-tools ~/.buildozer/android/platform/android-sdk/platform-tools
+          ln -sf $ANDROID_NDK_HOME ~/.buildozer/android/platform/android-ndk
+          buildozer android debug
 
       - name: 上传 APK
         uses: actions/upload-artifact@v4
