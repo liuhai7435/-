@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+venv/
+.venv/
+.env
+.buildozer/
+bin/
+.idea/
+.vscode/
+logs/
+.DS_Store
+Thumbs.db
+
+# WebNex 本地配置
+.webnex/
+webnex.config.json
+static/.gitkeep
