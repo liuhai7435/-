@@ -22,25 +22,28 @@ requirements = python3,kivy,flask
 # Android 权限
 android.permissions = INTERNET,ACCESS_NETWORK_STATE
 
-# Android 版本
-android.api = 34
+# Android SDK 版本
+android.api = 33
 android.minapi = 24
-android.ndk = 25b
-android.sdk = 34
 
-# 架构（armeabi-v7a 兼容更多设备，arm64-v8a 性能更好）
-android.arch = arm64-v8a
+# 使用更稳定的 NDK（与 buildozer 1.6.0 兼容）
+android.ndk = 23b
 
-# 允许 HTTP 明文（Flask 本地用）
+# 允许 HTTP
 android.allow_clear_text = True
 
 # 竖屏
 orientation = portrait
 
+# 自动接受 SDK 许可
+android.accept_sdk_license = True
+
+# p4a 分支
+p4a.branch = master
+
 # 构建输出
 build_dir = .buildozer
 log_level = 2
 
-# ── buildozer 设置 ────────────────────
 [buildozer]
 log_level = 2
