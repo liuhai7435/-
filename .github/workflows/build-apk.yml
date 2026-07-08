@@ -33,6 +33,9 @@ jobs:
           echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> $GITHUB_ENV
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
           echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> $GITHUB_PATH
+          # 把 build-tools 加到 PATH（让 buildozer 找到 aidl）
+          echo "$ANDROID_HOME/build-tools/33.0.2" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
       - name: 缓存 Android SDK
         id: cache-sdk
